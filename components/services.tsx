@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -177,8 +178,8 @@ export function Services() {
                             key={cat}
                             onClick={() => setActive(cat)}
                             className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${active === cat
-                                    ? "bg-primary text-primary-foreground shadow-md"
-                                    : "border border-border bg-card text-muted-foreground hover:border-primary hover:text-foreground"
+                                ? "bg-primary text-primary-foreground shadow-md"
+                                : "border border-border bg-card text-muted-foreground hover:border-primary hover:text-foreground"
                                 }`}
                         >
                             {cat}
@@ -226,10 +227,13 @@ export function Services() {
                                     </div>
                                 )}
 
-                                <button className="flex items-center gap-1.5 text-sm font-medium text-primary transition-all hover:gap-2.5">
+                                <Link
+                                    href={`/book?service=${encodeURIComponent(service.name)}`}
+                                    className="flex items-center gap-1.5 text-sm font-medium text-primary transition-all hover:gap-2.5"
+                                >
                                     Book this style
                                     <ArrowRight size={14} />
-                                </button>
+                                </Link>
                             </CardContent>
                         </Card>
                     ))}

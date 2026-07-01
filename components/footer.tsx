@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
@@ -95,12 +96,14 @@ export function Footer() {
                             Book your slot online or walk into Shop 25, Northmead Market.
                             We&apos;d love to see you.
                         </p>
-                        <Button
-                            variant="outline"
-                            className="rounded-full border-background/30 bg-transparent text-background hover:bg-background hover:text-foreground"
-                        >
-                            Book an Appointment
-                        </Button>
+                        <Link href="/book">
+                            <Button
+                                variant="outline"
+                                className="rounded-full border-background/30 bg-transparent text-background hover:bg-background hover:text-foreground"
+                            >
+                                Book an Appointment
+                            </Button>
+                        </Link>
                     </div>
                 </div>
 

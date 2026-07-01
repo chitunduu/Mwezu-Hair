@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BraidDivider } from "@/components/braid-divider";
 import { Button } from "@/components/ui/button";
 import { Heart, Sparkles, Users } from "lucide-react";
@@ -52,7 +53,9 @@ export function About() {
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                            <Button className="rounded-full px-6">Book an Appointment</Button>
+                            <Link href="/book">
+                                <Button className="rounded-full px-6">Book an Appointment</Button>
+                            </Link>
                             <Button variant="outline" className="rounded-full px-6">
                                 Find Us on the Map
                             </Button>

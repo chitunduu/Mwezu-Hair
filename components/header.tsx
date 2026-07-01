@@ -48,7 +48,9 @@ export function Header() {
                 </nav>
 
                 <div className="hidden md:block">
-                    <Button className="rounded-full px-6">Book an Appointment</Button>
+                    <Link href="/book">
+                        <Button className="rounded-full px-6">Book an Appointment</Button>
+                    </Link>
                 </div>
 
                 {/* Mobile toggle */}
@@ -74,9 +76,9 @@ export function Header() {
                             {link.label}
                         </Link>
                     ))}
-                    <Button className="mt-2 w-full rounded-full">
-                        Book an Appointment
-                    </Button>
+                    <Link href="/book">
+                        <Button className="mt-2 w-full rounded-full">Book an Appointment</Button>
+                    </Link>
                 </nav>
             )}
         </header>
