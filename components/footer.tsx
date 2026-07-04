@@ -6,6 +6,7 @@ const links = [
     { label: "Services", href: "#services" },
     { label: "About", href: "#about" },
     { label: "Location", href: "#location" },
+    { label: "Loyalty Rewards", href: "/loyalty" },
 ];
 
 const socials = [

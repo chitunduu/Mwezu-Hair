@@ -255,6 +255,37 @@ export function BookingFlow() {
                     >
                         Book Another Appointment
                     </button>
+
+                    {/* Owner notification */}
+                    <div
+                        className="rounded-2xl p-4 mt-2"
+                        style={{ background: "rgba(201,168,76,0.05)", border: "1px solid rgba(201,168,76,0.2)" }}
+                    >
+                        <p className="text-xs uppercase tracking-widest mb-1" style={{ color: C.gold }}>
+                            Notify the Salon
+                        </p>
+                        <p className="text-xs mb-3" style={{ color: C.muted }}>
+                            Tap to send your booking details to both salon owners via WhatsApp.
+                        </p>
+                        <div className="flex gap-2">
+                            {[
+                                { label: "Notify Owner 1", phone: "260977000001" },
+                                { label: "Notify Owner 2", phone: "260977000002" },
+                            ].map(({ label, phone }) => {
+                                const msg = `🔔 *New Mwezu Hair Booking!*\n\n👤 *Client:* ${formData.name}\n📱 *Phone:* ${formData.phone}\n✂️ *Service:* ${selectedService?.name}${selectedService?.hasVariants ? ` · ${variant.size} · ${variant.length}` : ""}\n📅 *Date:* ${selectedDate ? formatDate(selectedDate) : ""}\n⏰ *Time:* ${selectedTime}\n\nPlease check the admin dashboard for full details.`;
+                                return (
+                                    <button
+                                        key={label}
+                                        onClick={() => window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`)}
+                                        className="flex-1 rounded-full py-2.5 text-xs font-semibold transition-opacity hover:opacity-90"
+                                        style={{ background: "rgba(201,168,76,0.1)", color: "#C9A84C", border: "1px solid rgba(201,168,76,0.3)" }}
+                                    >
+                                        {label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
             </div>
         );
