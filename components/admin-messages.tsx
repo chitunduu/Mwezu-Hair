@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
     MessageSquare, Phone, Settings, Send,
     Copy, Check, Users, Bell, Zap,
-    Heart, Gift, Crown, AlertTriangle, ChevronRight,
+    Heart, Gift, Crown, AlertTriangle, ChevronRight, RefreshCw,
+    ClipboardList, Star,
 } from "lucide-react";
 
 const C = {
@@ -16,7 +17,7 @@ const C = {
     warning: "#E09B4C", warningFaint: "rgba(224,155,76,0.1)",
 };
 
-// ─── Types ─────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type Owner = { name: string; phone: string; role: string };
 type Tab = "client" | "owners" | "campaigns";
 type TemplateCat = "all" | "reminders" | "followup" | "winback" | "birthday" | "loyalty";
@@ -28,67 +29,87 @@ type Template = {
     body: (vars: Record<string, string>) => string;
 };
 
-// ─── Mock data ─────────────────────────────────────────────
+// â”€â”€â”€ Mock data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const mockClients = [
-    { id: "1", name: "Thandiwe Mwale", phone: "0977 123 456", service: "Knotless Braids · Medium Hip", date: "Today", time: "8:00 AM", tier: "Gold", points: 1240 },
+    { id: "1", name: "Thandiwe Mwale", phone: "0977 123 456", service: "Knotless Braids Â· Medium Hip", date: "Today", time: "8:00 AM", tier: "Gold", points: 1240 },
     { id: "2", name: "Naledi Phiri", phone: "0966 234 567", service: "Fulani Braids", date: "Today", time: "10:00 AM", tier: "Silver", points: 870 },
     { id: "3", name: "Chanda Banda", phone: "0955 345 678", service: "Luxe Sew-in", date: "Today", time: "1:00 PM", tier: "Silver", points: 760 },
     { id: "4", name: "Mutale Zulu", phone: "0977 456 789", service: "Spanish Curl", date: "Today", time: "3:00 PM", tier: "Bronze", points: 480 },
     { id: "5", name: "Namwinga Kasonde", phone: "0966 567 890", service: "Goddess Twists", date: "Tomorrow", time: "9:00 AM", tier: "Silver", points: 980 },
     { id: "6", name: "Bwalya Mwamba", phone: "0955 678 901", service: "Box Braids", date: "Tomorrow", time: "1:00 PM", tier: "Bronze", points: 390 },
-    { id: "7", name: "Mwila Chitalu", phone: "0977 789 012", service: "Wash & Blow Dry", date: "4 Feb 2025", time: "—", tier: "Bronze", points: 120, atRisk: true },
+    { id: "7", name: "Mwila Chitalu", phone: "0977 789 012", service: "Wash & Blow Dry", date: "4 Feb 2025", time: "â€”", tier: "Bronze", points: 120, atRisk: true },
 ];
 
 const templates: Template[] = [
     {
         id: "t1", title: "Booking Confirmation", category: "reminders",
         icon: Check, iconColor: C.success, description: "Sent immediately after booking",
-        body: (v) => `Hi ${v.name} 💛\n\nYour appointment at *Mwezu Hair Salon* is confirmed!\n\n✂️ *Service:* ${v.service}\n📅 *Date:* ${v.date}\n⏰ *Time:* ${v.time}\n📍 Northmead Market, Shop 25\n\nSee you soon! Reply if you have any questions 🌸`,
+        body: (v) => `Hi ${v.name} ðŸ’›\n\nYour appointment at *Mwezu Hair Salon* is confirmed!\n\nâœ‚ï¸ *Service:* ${v.service}\nðŸ“… *Date:* ${v.date}\nâ° *Time:* ${v.time}\nðŸ“ Northmead Market, Shop 25\n\nSee you soon! Reply if you have any questions ðŸŒ¸`,
     },
     {
         id: "t2", title: "24-Hour Reminder", category: "reminders",
         icon: Bell, iconColor: C.gold, description: "Sent the day before the appointment",
-        body: (v) => `Hi ${v.name} 😊\n\nJust a reminder — your Mwezu Hair appointment is *TOMORROW!*\n\n✂️ ${v.service}\n⏰ ${v.time}\n📍 Northmead Market, Shop 25\n\nPlease arrive 5 minutes early. We can't wait to see you! 💛`,
+        body: (v) => `Hi ${v.name} ðŸ˜Š\n\nJust a reminder â€” your Mwezu Hair appointment is *TOMORROW!*\n\nâœ‚ï¸ ${v.service}\nâ° ${v.time}\nðŸ“ Northmead Market, Shop 25\n\nPlease arrive 5 minutes early. We can't wait to see you! ðŸ’›`,
     },
     {
         id: "t3", title: "2-Hour Reminder", category: "reminders",
         icon: Bell, iconColor: C.warning, description: "Sent 2 hours before appointment",
-        body: (v) => `Hi ${v.name} ⏰\n\nYour Mwezu Hair appointment is in *2 hours!*\n\n✂️ ${v.service} at ${v.time}\n📍 Northmead Market, Shop 25\n\nSee you very soon! 💛`,
+        body: (v) => `Hi ${v.name} â°\n\nYour Mwezu Hair appointment is in *2 hours!*\n\nâœ‚ï¸ ${v.service} at ${v.time}\nðŸ“ Northmead Market, Shop 25\n\nSee you very soon! ðŸ’›`,
     },
     {
         id: "t4", title: "Thank You Message", category: "followup",
         icon: Heart, iconColor: "#E05C8A", description: "Sent after the appointment",
-        body: (v) => `Hi ${v.name} 💛\n\nThank you so much for visiting *Mwezu Hair Salon* today!\n\nWe hope you absolutely love your ${v.service}. ✨\n\nDon't forget — you've earned points towards your *Mwezu Rewards* 🏆\n\nWe'd love to see you again soon! Book your next appointment anytime 🌸`,
+        body: (v) => `Hi ${v.name} ðŸ’›\n\nThank you so much for visiting *Mwezu Hair Salon* today!\n\nWe hope you absolutely love your ${v.service}. âœ¨\n\nDon't forget â€” you've earned points towards your *Mwezu Rewards* ðŸ†\n\nWe'd love to see you again soon! Book your next appointment anytime ðŸŒ¸`,
     },
     {
         id: "t5", title: "Review Request", category: "followup",
         icon: Heart, iconColor: C.warning, description: "Ask for feedback after visit",
-        body: (v) => `Hi ${v.name} 😊\n\nWe hope you're loving your new look from Mwezu Hair! ✨\n\nIf you enjoyed your experience, we'd be so grateful if you could share a quick review or post your style and tag us:\n\n📸 Instagram: *@mwezu_hair*\n\nYour support means everything to us! 💛`,
+        body: (v) => `Hi ${v.name} ðŸ˜Š\n\nWe hope you're loving your new look from Mwezu Hair! âœ¨\n\nIf you enjoyed your experience, we'd be so grateful if you could share a quick review or post your style and tag us:\n\nðŸ“¸ Instagram: *@mwezu_hair*\n\nYour support means everything to us! ðŸ’›`,
     },
     {
         id: "t6", title: "Win-Back Message", category: "winback",
         icon: Zap, iconColor: C.danger, description: "For clients 45+ days inactive",
-        body: (v) => `Hi ${v.name} 💛\n\nWe miss you at *Mwezu Hair!* 🌸\n\nIt's been a while since your last visit and we'd love to see you again.\n\nYour loyalty points are still waiting for you 🏆\n\nBook your next appointment:\n👉 mwezuhair.vercel.app/book\n\nWe can't wait to have you back! ✨`,
+        body: (v) => `Hi ${v.name} ðŸ’›\n\nWe miss you at *Mwezu Hair!* ðŸŒ¸\n\nIt's been a while since your last visit and we'd love to see you again.\n\nYour loyalty points are still waiting for you ðŸ†\n\nBook your next appointment:\nðŸ‘‰ mwezuhair.vercel.app/book\n\nWe can't wait to have you back! âœ¨`,
     },
     {
         id: "t7", title: "Special Offer (Win-back)", category: "winback",
         icon: Gift, iconColor: C.danger, description: "Win-back with a special incentive",
-        body: (v) => `Hi ${v.name}! 🎁\n\nWe haven't seen you in a while and we miss you!\n\nAs a special thank you for being a loyal Mwezu client, we'd love to offer you *double loyalty points* on your next visit 🏆\n\nBook today:\n👉 mwezuhair.vercel.app/book\n\nThis offer is just for you, ${v.name}! 💛`,
+        body: (v) => `Hi ${v.name}! ðŸŽ\n\nWe haven't seen you in a while and we miss you!\n\nAs a special thank you for being a loyal Mwezu client, we'd love to offer you *double loyalty points* on your next visit ðŸ†\n\nBook today:\nðŸ‘‰ mwezuhair.vercel.app/book\n\nThis offer is just for you, ${v.name}! ðŸ’›`,
     },
     {
         id: "t8", title: "Birthday Greeting", category: "birthday",
         icon: Gift, iconColor: "#E05C8A", description: "Sent on client's birthday",
-        body: (v) => `🎂 *Happy Birthday, ${v.name}!* 🎉\n\nFrom all of us at *Mwezu Hair Salon*, we're wishing you the most beautiful day!\n\n🎁 *Your birthday gift:* Double loyalty points on ANY booking this month!\n\nTreat yourself — you deserve it! 💛\n\nBook now: mwezuhair.vercel.app/book`,
+        body: (v) => `ðŸŽ‚ *Happy Birthday, ${v.name}!* ðŸŽ‰\n\nFrom all of us at *Mwezu Hair Salon*, we're wishing you the most beautiful day!\n\nðŸŽ *Your birthday gift:* Double loyalty points on ANY booking this month!\n\nTreat yourself â€” you deserve it! ðŸ’›\n\nBook now: mwezuhair.vercel.app/book`,
     },
     {
         id: "t9", title: "Loyalty Tier Upgrade", category: "loyalty",
         icon: Crown, iconColor: C.gold, description: "Sent when client reaches a new tier",
-        body: (v) => `🏆 *Congratulations, ${v.name}!*\n\nYou've just reached *${v.tier} status* on Mwezu Rewards! ✨\n\nYou've unlocked exclusive new perks on your next visit.\n\nThank you for your loyalty — you deserve every reward! 💛\n\nSee your full benefits at:\n👉 mwezuhair.vercel.app/loyalty`,
+        body: (v) => `ðŸ† *Congratulations, ${v.name}!*\n\nYou've just reached *${v.tier} status* on Mwezu Rewards! âœ¨\n\nYou've unlocked exclusive new perks on your next visit.\n\nThank you for your loyalty â€” you deserve every reward! ðŸ’›\n\nSee your full benefits at:\nðŸ‘‰ mwezuhair.vercel.app/loyalty`,
     },
     {
         id: "t10", title: "Points Balance Update", category: "loyalty",
         icon: Crown, iconColor: C.gold, description: "After earning points",
-        body: (v) => `Hi ${v.name} 🏆\n\nGreat news — you just earned points from your visit!\n\n⭐ *Current Balance:* ${v.points} points\n🎯 *Your Tier:* ${v.tier}\n\nKeep visiting to unlock more exclusive rewards!\n\n👉 mwezuhair.vercel.app/loyalty`,
+        body: (v) => `Hi ${v.name} ðŸ†\n\nGreat news â€” you just earned points from your visit!\n\nâ­ *Current Balance:* ${v.points} points\nðŸŽ¯ *Your Tier:* ${v.tier}\n\nKeep visiting to unlock more exclusive rewards!\n\nðŸ‘‰ mwezuhair.vercel.app/loyalty`,
+    },
+    {
+        id: "t11", title: "Manage Booking Link", category: "reminders",
+        icon: RefreshCw, iconColor: C.muted, description: "Send client a link to cancel or reschedule",
+        body: (v) => `Hi ${v.name} ðŸ’›\n\nIf you ever need to reschedule or cancel your Mwezu Hair appointment, you can do it easily here:\n\nðŸ‘‰ mwezu-hair.vercel.app/manage\n\nJust enter your phone number and we'll find your booking.\n\nSee you soon! ðŸŒ¸`,
+    },
+    {
+        id: "t12", title: "Send Intake Form Link", category: "reminders",
+        icon: ClipboardList, iconColor: "#9B7FE8", description: "Send new clients a link to fill out their consultation form",
+        body: (v) => `Hi ${v.name} 🌸\n\nWelcome to *Mwezu Hair!* We're so excited to have you.\n\nBefore your first appointment, please take 3 minutes to fill out our client consultation form so we can give you the best possible service:\n\n📋 mwezu-hair.vercel.app/intake\n\nSee you soon! 💛`,
+    },
+    {
+        id: "t13", title: "Rebooking Reminder", category: "reminders",
+        icon: RefreshCw, iconColor: C.warning, description: "Send 6–8 weeks after last visit to encourage rebooking",
+        body: (v) => `Hi ${v.name} 💛\n\nIt's been a while since your last visit at *Mwezu Hair* and we'd love to see you again!\n\nYour hair is probably ready for some love 🌸\n\nBook your next appointment:\n👉 mwezu-hair.vercel.app/book\n\nDon't forget — you're earning *Mwezu Rewards* points every time you visit! 🏆`,
+    },
+    {
+        id: "t14", title: "Google Review Request", category: "followup",
+        icon: Star, iconColor: C.warning, description: "Ask happy clients to leave a Google review after their visit",
+        body: (v) => `Hi ${v.name} 😊\n\nWe hope you're absolutely loving your new look from *Mwezu Hair!* ✨\n\nIf you had a wonderful experience, would you mind leaving us a quick Google review? It takes less than a minute and means the world to us! 💛\n\n⭐ Leave a review:\nhttps://g.page/r/mwezuhair/review\n\nThank you so much — we can't wait to see you again! 🌸`,
     },
 ];
 
@@ -97,23 +118,23 @@ const campaignTemplates = [
         id: "c1", title: "Win-Back Campaign", icon: Zap, color: C.danger,
         description: "Send to all clients who haven't visited in 45+ days",
         target: "at-risk", count: 1,
-        body: (name: string) => `Hi ${name} 💛\n\nWe miss you at *Mwezu Hair!* 🌸\n\nIt's been a while since your last visit and we'd love to see you again.\n\nYour loyalty points are still waiting for you 🏆\n\nBook your next appointment:\n👉 mwezuhair.vercel.app/book`,
+        body: (name: string) => `Hi ${name} ðŸ’›\n\nWe miss you at *Mwezu Hair!* ðŸŒ¸\n\nIt's been a while since your last visit and we'd love to see you again.\n\nYour loyalty points are still waiting for you ðŸ†\n\nBook your next appointment:\nðŸ‘‰ mwezuhair.vercel.app/book`,
     },
     {
         id: "c2", title: "New Client Welcome", icon: Heart, color: "#E05C8A",
         description: "Welcome message for first-time clients after their appointment",
         target: "new", count: 2,
-        body: (name: string) => `Hi ${name} 🌸\n\nWelcome to the *Mwezu Hair family!* 💛\n\nWe hope you loved your first visit with us. You've been automatically enrolled in *Mwezu Rewards* — so every visit earns you points towards free services! 🏆\n\nWe can't wait to see you again!\n\n👉 mwezuhair.vercel.app/loyalty`,
+        body: (name: string) => `Hi ${name} ðŸŒ¸\n\nWelcome to the *Mwezu Hair family!* ðŸ’›\n\nWe hope you loved your first visit with us. You've been automatically enrolled in *Mwezu Rewards* â€” so every visit earns you points towards free services! ðŸ†\n\nWe can't wait to see you again!\n\nðŸ‘‰ mwezuhair.vercel.app/loyalty`,
     },
     {
         id: "c3", title: "Loyalty Reminder", icon: Crown, color: C.gold,
         description: "Remind clients close to their next tier",
         target: "near-tier", count: 2,
-        body: (name: string) => `Hi ${name} 🏆\n\nYou're *SO close* to your next Mwezu Rewards tier!\n\nJust a few more visits and you'll unlock exclusive new perks ✨\n\nBook your next appointment:\n👉 mwezuhair.vercel.app/book\n\nWe can't wait to reward your loyalty! 💛`,
+        body: (name: string) => `Hi ${name} ðŸ†\n\nYou're *SO close* to your next Mwezu Rewards tier!\n\nJust a few more visits and you'll unlock exclusive new perks âœ¨\n\nBook your next appointment:\nðŸ‘‰ mwezuhair.vercel.app/book\n\nWe can't wait to reward your loyalty! ðŸ’›`,
     },
 ];
 
-// ─── Helper: copy to clipboard ─────────────────────────────
+// â”€â”€â”€ Helper: copy to clipboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function useCopy() {
     const [copied, setCopied] = useState<string | null>(null);
     function copy(text: string, id: string) {
@@ -130,7 +151,8 @@ function openWhatsApp(phone: string, message: string) {
     window.open(`https://wa.me/${clean}?text=${encodeURIComponent(message)}`);
 }
 
-// ─── Template Card ─────────────────────────────────────────
+
+// â”€â”€â”€ Template Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function TemplateCard({ template, client, onSend }: {
     template: Template;
     client: typeof mockClients[0] | null;
@@ -196,7 +218,7 @@ function TemplateCard({ template, client, onSend }: {
     );
 }
 
-// ─── Main Component ────────────────────────────────────────
+// â”€â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function AdminMessages() {
     const [tab, setTab] = useState<Tab>("client");
     const [selectedClient, setSelectedClient] = useState<typeof mockClients[0] | null>(null);
@@ -222,7 +244,7 @@ export function AdminMessages() {
     ];
 
     function newBookingOwnerMsg(owner: Owner) {
-        return `🔔 *New Mwezu Hair Booking!*\n\nHi ${owner.name},\n\nA new appointment has just been booked:\n\n👤 *Client:* [Client Name]\n📱 *Phone:* [Phone]\n✂️ *Service:* [Service]\n📅 *Date:* [Date]\n⏰ *Time:* [Time]\n\nPlease check the admin dashboard for full details.`;
+        return `ðŸ”” *New Mwezu Hair Booking!*\n\nHi ${owner.name},\n\nA new appointment has just been booked:\n\nðŸ‘¤ *Client:* [Client Name]\nðŸ“± *Phone:* [Phone]\nâœ‚ï¸ *Service:* [Service]\nðŸ“… *Date:* [Date]\nâ° *Time:* [Time]\n\nPlease check the admin dashboard for full details.`;
     }
 
     return (
@@ -233,7 +255,7 @@ export function AdminMessages() {
                     <Settings size={15} style={{ color: C.gold }} />
                     <h3 className="font-display font-bold text-sm" style={{ color: C.text }}>Owner Notification Settings</h3>
                     <span className="text-xs ml-1" style={{ color: C.muted }}>
-                        — Both owners receive WhatsApp alerts for every new booking
+                        â€” Both owners receive WhatsApp alerts for every new booking
                     </span>
                 </div>
 
@@ -330,7 +352,7 @@ export function AdminMessages() {
                 ))}
             </div>
 
-            {/* ── CLIENT MESSAGES TAB ───────────────────────── */}
+            {/* â”€â”€ CLIENT MESSAGES TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             {tab === "client" && (
                 <div>
                     {/* Client selector */}
@@ -348,7 +370,7 @@ export function AdminMessages() {
                                 }}
                             >
                                 <div className="text-sm" style={{ color: !selectedClient ? C.gold : C.muted }}>
-                                    — No client selected (shows template preview)
+                                    â€” No client selected (shows template preview)
                                 </div>
                             </button>
                             {mockClients.map(client => (
@@ -367,10 +389,10 @@ export function AdminMessages() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="text-sm font-medium" style={{ color: C.text }}>{client.name}</div>
-                                        <div className="text-xs" style={{ color: C.muted }}>{client.service} · {client.date} {client.time !== "—" ? `at ${client.time}` : ""}</div>
+                                        <div className="text-xs" style={{ color: C.muted }}>{client.service} Â· {client.date} {client.time !== "â€”" ? `at ${client.time}` : ""}</div>
                                     </div>
                                     {client.atRisk && (
-                                        <span className="text-xs shrink-0" style={{ color: C.danger }}>⚠️ At Risk</span>
+                                        <span className="text-xs shrink-0" style={{ color: C.danger }}>âš ï¸ At Risk</span>
                                     )}
                                 </button>
                             ))}
@@ -409,7 +431,7 @@ export function AdminMessages() {
                 </div>
             )}
 
-            {/* ── OWNER ALERTS TAB ──────────────────────────── */}
+            {/* â”€â”€ OWNER ALERTS TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             {tab === "owners" && (
                 <div>
                     <div
@@ -428,22 +450,22 @@ export function AdminMessages() {
                             {
                                 id: "new-booking", title: "New Booking Alert", icon: Bell, color: C.success,
                                 desc: "Sent to both owners when a client books online",
-                                msg: `🔔 *New Mwezu Hair Booking!*\n\n👤 *Client:* [Client Name]\n📱 *Phone:* [Phone]\n✂️ *Service:* [Service]\n📅 *Date:* [Date]\n⏰ *Time:* [Time]\n\nPlease check the admin dashboard for full details.`,
+                                msg: `ðŸ”” *New Mwezu Hair Booking!*\n\nðŸ‘¤ *Client:* [Client Name]\nðŸ“± *Phone:* [Phone]\nâœ‚ï¸ *Service:* [Service]\nðŸ“… *Date:* [Date]\nâ° *Time:* [Time]\n\nPlease check the admin dashboard for full details.`,
                             },
                             {
                                 id: "cancellation", title: "Cancellation Alert", icon: AlertTriangle, color: C.danger,
                                 desc: "Sent to both owners when a client cancels",
-                                msg: `⚠️ *Booking Cancelled*\n\n👤 [Client Name] has cancelled their appointment\n✂️ [Service]\n📅 [Date]\n⏰ [Time]\n\nThe slot is now available.`,
+                                msg: `âš ï¸ *Booking Cancelled*\n\nðŸ‘¤ [Client Name] has cancelled their appointment\nâœ‚ï¸ [Service]\nðŸ“… [Date]\nâ° [Time]\n\nThe slot is now available.`,
                             },
                             {
                                 id: "new-client", title: "New Client Alert", icon: Users, color: "#9B7FE8",
                                 desc: "Sent when a first-time client books",
-                                msg: `🌟 *New Client Alert!*\n\n[Client Name] has just booked their *first-ever* Mwezu Hair appointment!\n\n✂️ [Service]\n📅 [Date]\n⏰ [Time]\n📱 [Phone]\n\nLet's make a great first impression! 💛`,
+                                msg: `ðŸŒŸ *New Client Alert!*\n\n[Client Name] has just booked their *first-ever* Mwezu Hair appointment!\n\nâœ‚ï¸ [Service]\nðŸ“… [Date]\nâ° [Time]\nðŸ“± [Phone]\n\nLet's make a great first impression! ðŸ’›`,
                             },
                             {
                                 id: "at-risk", title: "At-Risk Client Booked!", icon: Heart, color: C.warning,
                                 desc: "Sent when a win-back client returns",
-                                msg: `🎉 *Win-Back Success!*\n\nA client we haven't seen in a while just booked!\n\n👤 [Client Name]\n✂️ [Service]\n📅 [Date]\n⏰ [Time]\n\nGreat news for the salon! 💛`,
+                                msg: `ðŸŽ‰ *Win-Back Success!*\n\nA client we haven't seen in a while just booked!\n\nðŸ‘¤ [Client Name]\nâœ‚ï¸ [Service]\nðŸ“… [Date]\nâ° [Time]\n\nGreat news for the salon! ðŸ’›`,
                             },
                         ].map(({ id, title, icon: Icon, color, desc, msg }) => (
                             <div key={id} className="rounded-2xl p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
@@ -489,7 +511,7 @@ export function AdminMessages() {
                 </div>
             )}
 
-            {/* ── CAMPAIGNS TAB ─────────────────────────────── */}
+            {/* â”€â”€ CAMPAIGNS TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             {tab === "campaigns" && (
                 <div>
                     <div
@@ -499,7 +521,7 @@ export function AdminMessages() {
                         <Zap size={16} style={{ color: C.warning, marginTop: "2px" }} />
                         <div className="text-sm leading-relaxed" style={{ color: C.muted }}>
                             Send targeted WhatsApp messages to specific client segments.
-                            Each button opens WhatsApp with the message ready — no extra steps.
+                            Each button opens WhatsApp with the message ready â€” no extra steps.
                         </div>
                     </div>
 
@@ -563,7 +585,7 @@ export function AdminMessages() {
 
                                     {targetClients.length === 0 && (
                                         <div className="text-sm text-center py-4" style={{ color: C.muted }}>
-                                            No clients match this campaign right now 🎉
+                                            No clients match this campaign right now ðŸŽ‰
                                         </div>
                                     )}
                                 </div>
@@ -575,3 +597,5 @@ export function AdminMessages() {
         </div>
     );
 }
+
+

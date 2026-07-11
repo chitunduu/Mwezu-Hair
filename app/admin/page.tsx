@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { AdminDashboard } from "../../components/admin-dashboard";
+import { AdminInventory } from "@/components/admin-inventory";
+import { AdminWaitlist } from "@/components/admin-waitlist";
 import { Lock } from "lucide-react";
 
 const ADMIN_PIN = "1234";

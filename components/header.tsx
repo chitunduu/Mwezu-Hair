@@ -10,6 +10,7 @@ const navLinks = [
     { label: "Services", href: "#services" },
     { label: "About", href: "#about" },
     { label: "Location", href: "#location" },
+    { label: "Gift Vouchers", href: "/vouchers" },
 ];
 
 export function Header() {

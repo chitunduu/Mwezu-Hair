@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Clock, CheckCircle2, CalendarDays, Scissors, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Clock, CheckCircle2, CalendarDays, Scissors, ChevronLeft, ChevronRight, Sparkles, Shield, UserPlus, AlertTriangle } from "lucide-react";
+import Link from "next/link";
 
 // ─── Color tokens ─────────────────────────────────────────
 const C = {
@@ -12,6 +13,7 @@ const C = {
     gold: "#C9A84C",
     goldFaint: "rgba(201,168,76,0.12)",
     goldBorder: "rgba(201,168,76,0.3)",
+    warning: "#EACB44",
     text: "#FAF6EE",
     muted: "#9B896E",
     border: "rgba(255,255,255,0.07)",
@@ -79,7 +81,8 @@ function getNext14Days() {
     });
 }
 
-function formatDate(d: Date) {
+function formatDate(d: Date | null | undefined) {
+    if (!d) return "";
     return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 }
 
@@ -170,6 +173,9 @@ export function BookingFlow() {
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [formData, setFormData] = useState<FormData>({ name: "", phone: "", notes: "" });
     const [confirmed, setConfirmed] = useState(false);
+    const [policyAccepted, setPolicyAccepted] = useState(false);
+    const [waitlistForm, setWaitlistForm] = useState({ name: "", phone: "" });
+    const [waitlistJoined, setWaitlistJoined] = useState(false);
 
     const searchParams = useSearchParams();
 
@@ -190,6 +196,9 @@ export function BookingFlow() {
 
     const dates = getNext14Days();
     const filtered = activeCategory === "All" ? services : services.filter(s => s.category === activeCategory);
+    const selectedDateIsFullyBooked = selectedDate
+        ? dates.some((date, index) => date.toDateString() === selectedDate.toDateString() && index % 6 === 0)
+        : false;
 
     function handleSelectService(s: Service) {
         setSelectedService(s);
@@ -235,7 +244,7 @@ export function BookingFlow() {
                             style={{ borderBottom: `1px solid ${C.border}` }}
                         >
                             <span style={{ color: C.muted }}>{label}</span>
-                            <span className="font-medium" style={{ color: label === "Price" ? C.gold : C.text }}>{value}</span>
+                            <span className="font-medium" style={{ color: C.text }}>{value}</span>
                         </div>
                     ))}
                 </div>
@@ -249,12 +258,21 @@ export function BookingFlow() {
                         Message Us on WhatsApp
                     </button>
                     <button
-                        onClick={() => { setConfirmed(false); setStep(1); setSelectedService(null); setSelectedDate(null); setSelectedTime(null); setFormData({ name: "", phone: "", notes: "" }); }}
+                        onClick={() => { setConfirmed(false); setStep(1); setSelectedService(null); setSelectedDate(null); setSelectedTime(null); setFormData({ name: "", phone: "", notes: "" }); setPolicyAccepted(false); }}
                         className="w-full rounded-full py-4 text-sm font-medium transition-opacity hover:opacity-80"
                         style={{ background: C.elevated, color: C.text, border: `1px solid ${C.border}` }}
                     >
                         Book Another Appointment
                     </button>
+
+                    <Link href="/manage" className="w-full">
+                        <button
+                            className="w-full rounded-full py-3 text-xs font-medium transition-opacity hover:opacity-80"
+                            style={{ background: C.elevated, color: C.muted, border: `1px solid ${C.border}` }}
+                        >
+                            Need to cancel or reschedule? Manage booking →
+                        </button>
+                    </Link>
 
                     {/* Owner notification */}
                     <div
@@ -272,7 +290,7 @@ export function BookingFlow() {
                                 { label: "Notify Owner 1", phone: "260977000001" },
                                 { label: "Notify Owner 2", phone: "260977000002" },
                             ].map(({ label, phone }) => {
-                                const msg = `🔔 *New Mwezu Hair Booking!*\n\n👤 *Client:* ${formData.name}\n📱 *Phone:* ${formData.phone}\n✂️ *Service:* ${selectedService?.name}${selectedService?.hasVariants ? ` · ${variant.size} · ${variant.length}` : ""}\n📅 *Date:* ${selectedDate ? formatDate(selectedDate) : ""}\n⏰ *Time:* ${selectedTime}\n\nPlease check the admin dashboard for full details.`;
+                                const msg = `🔔 *New Mwezu Hair Booking!*\n\n👤 *Client:* ${formData.name}\n📱 *Phone:* ${formData.phone}\n✂️ *Service:* ${selectedService?.name}${selectedService?.hasVariants && variant?.size ? ` · ${variant.size} · ${variant.length}` : ""}\n📅 *Date:* ${selectedDate ? formatDate(selectedDate) : ""}\n⏰ *Time:* ${selectedTime}\n\nPlease check the admin dashboard for full details.`;
                                 return (
                                     <button
                                         key={label}
@@ -490,6 +508,87 @@ export function BookingFlow() {
                     </div>
 
                     {/* Time slots */}
+                    {/* Waitlist — shows when a full date is selected */}
+                    {selectedDate && selectedDateIsFullyBooked && !waitlistJoined && (
+                        <div
+                            className="rounded-2xl p-6 mb-4"
+                            style={{ background: C.surface, border: `1px solid rgba(224,155,76,0.3)` }}
+                        >
+                            <div className="flex items-center gap-2 mb-2">
+                                <AlertTriangle size={16} style={{ color: C.warning }} />
+                                <h3 className="font-display font-bold text-base" style={{ color: C.text }}>
+                                    This day is fully booked
+                                </h3>
+                            </div>
+                            <p className="text-sm mb-5" style={{ color: C.muted }}>
+                                All slots for {formatDate(selectedDate)} are taken. Join the waitlist and
+                                we&apos;ll WhatsApp you the moment a slot opens up.
+                            </p>
+
+                            <div className="flex flex-col gap-3 mb-4">
+                                {[
+                                    { label: "Your Name", key: "name", placeholder: "e.g. Thandiwe Mwale", type: "text" },
+                                    { label: "Your WhatsApp", key: "phone", placeholder: "e.g. 0977 000 000", type: "tel" },
+                                ].map(({ label, key, placeholder, type }) => (
+                                    <div key={key}>
+                                        <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: C.gold }}>
+                                            {label} *
+                                        </label>
+                                        <input
+                                            type={type}
+                                            placeholder={placeholder}
+                                            value={waitlistForm[key as keyof typeof waitlistForm]}
+                                            onChange={e => setWaitlistForm(f => ({ ...f, [key]: e.target.value }))}
+                                            className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                                            style={{ background: C.elevated, border: `1px solid ${C.border}`, color: C.text, caretColor: C.gold }}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                disabled={!waitlistForm.name || !waitlistForm.phone}
+                                onClick={() => {
+                                    const msg = `🔔 *New Waitlist Entry!*\n\n👤 *Name:* ${waitlistForm.name}\n📱 *Phone:* ${waitlistForm.phone}\n✂️ *Service:* ${selectedService?.name ?? "—"}\n📅 *Preferred Date:* ${formatDate(selectedDate)}\n\nThey want to be notified if a slot opens up.`;
+                                    window.open(`https://wa.me/260977000001?text=${encodeURIComponent(msg)}`);
+                                    setWaitlistJoined(true);
+                                }}
+                                className="w-full rounded-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-opacity"
+                                style={{
+                                    background: waitlistForm.name && waitlistForm.phone ? C.warning : C.elevated,
+                                    color: waitlistForm.name && waitlistForm.phone ? "#1C1714" : C.muted,
+                                    opacity: waitlistForm.name && waitlistForm.phone ? 1 : 0.5,
+                                }}
+                            >
+                                <UserPlus size={15} /> Join the Waitlist
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Waitlist success */}
+                    {waitlistJoined && (
+                        <div
+                            className="rounded-2xl p-6 text-center mb-4"
+                            style={{ background: C.surface, border: `1px solid ${C.goldBorder}` }}
+                        >
+                            <CheckCircle2 size={28} style={{ color: C.gold }} className="mx-auto mb-3" />
+                            <h3 className="font-display font-bold text-lg mb-1" style={{ color: C.text }}>
+                                You&apos;re on the waitlist!
+                            </h3>
+                            <p className="text-sm mb-4" style={{ color: C.muted }}>
+                                We&apos;ll WhatsApp you at <span style={{ color: C.text }}>{waitlistForm.phone}</span> the
+                                moment a slot opens up for {formatDate(selectedDate)}.
+                            </p>
+                            <button
+                                onClick={() => { setWaitlistJoined(false); setSelectedDate(null); setWaitlistForm({ name: "", phone: "" }); }}
+                                className="rounded-full px-6 py-2.5 text-xs font-medium"
+                                style={{ background: C.elevated, color: C.muted }}
+                            >
+                                Choose a different date instead
+                            </button>
+                        </div>
+                    )}
+
                     {selectedDate && (
                         <>
                             <h3 className="font-display text-lg font-semibold mb-1" style={{ color: C.text }}>
@@ -537,6 +636,7 @@ export function BookingFlow() {
                             </button>
                         </>
                     )}
+
                 </div>
             )}
 
@@ -598,6 +698,55 @@ export function BookingFlow() {
                         </div>
                     </div>
 
+                    {/* No-show protection / Policy agreement */}
+                    <div
+                        className="rounded-2xl p-5 mb-5"
+                        style={{ background: C.surface, border: `1px solid rgba(201,168,76,0.2)` }}
+                    >
+                        <div className="flex items-center gap-2 mb-3">
+                            <Shield size={14} style={{ color: C.gold }} />
+                            <p className="text-xs uppercase tracking-widest" style={{ color: C.gold }}>
+                                Booking Policy
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col gap-2 mb-4">
+                            {[
+                                "24 hours notice required for cancellations",
+                                "Late cancellations (under 24hrs) may incur a K50 fee",
+                                "No-shows may be charged K50 to cover the stylist's time",
+                                "Deposits may be required for long or high-value services",
+                            ].map(policy => (
+                                <div key={policy} className="flex items-start gap-2 text-xs" style={{ color: C.muted }}>
+                                    <div className="h-1 w-1 rounded-full mt-1.5 shrink-0" style={{ background: C.gold }} />
+                                    {policy}
+                                </div>
+                            ))}
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => setPolicyAccepted(p => !p)}
+                            className="flex items-start gap-3 w-full text-left"
+                        >
+                            <div
+                                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md mt-0.5 transition-all"
+                                style={{
+                                    background: policyAccepted ? C.gold : C.elevated,
+                                    border: `2px solid ${policyAccepted ? C.gold : C.border}`,
+                                }}
+                            >
+                                {policyAccepted && (
+                                    <CheckCircle2 size={12} style={{ color: "#1C1714" }} />
+                                )}
+                            </div>
+                            <span className="text-xs leading-relaxed" style={{ color: C.muted }}>
+                                I understand and agree to Mwezu Hair&apos;s cancellation and no-show policy.
+                                I know that last-minute cancellations or no-shows may incur a fee.
+                            </span>
+                        </button>
+                    </div>
+
                     {/* Appointment summary */}
                     <div
                         className="rounded-2xl p-5 mb-6"
@@ -626,14 +775,14 @@ export function BookingFlow() {
                     </div>
 
                     <button
-                        disabled={!formData.name || !formData.phone}
+                        disabled={!formData.name || !formData.phone || !policyAccepted}
                         onClick={() => setConfirmed(true)}
                         className="w-full rounded-full py-4 text-sm font-semibold transition-opacity mb-4"
                         style={{
-                            background: formData.name && formData.phone ? C.gold : C.elevated,
-                            color: formData.name && formData.phone ? "#1C1714" : C.muted,
-                            cursor: formData.name && formData.phone ? "pointer" : "not-allowed",
-                            opacity: formData.name && formData.phone ? 1 : 0.5,
+                            background: formData.name && formData.phone && policyAccepted ? C.gold : C.elevated,
+                            color: formData.name && formData.phone && policyAccepted ? "#1C1714" : C.muted,
+                            cursor: formData.name && formData.phone && policyAccepted ? "pointer" : "not-allowed",
+                            opacity: formData.name && formData.phone && policyAccepted ? 1 : 0.5,
                         }}
                     >
                         Confirm Appointment

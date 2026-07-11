@@ -87,6 +87,21 @@ export function Footer() {
                                     </a>
                                 </li>
                             ))}
+                            <li>
+                                <a href="/intake" className="text-sm opacity-70 transition-opacity hover:opacity-100">
+                                    New Client Form
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/vouchers" className="text-sm opacity-70 transition-opacity hover:opacity-100">
+                                    Gift Vouchers
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/manage" className="text-sm opacity-70 transition-opacity hover:opacity-100">
+                                    Manage Booking
+                                </a>
+                            </li>
                         </ul>
                     </div>
                     <div>

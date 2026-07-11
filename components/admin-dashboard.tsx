@@ -1,18 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { BarChart2 } from "lucide-react";
+import { BarChart2, Package } from "lucide-react";
 import { AdminReports } from "@/components/admin-reports";
 import { AdminClients } from "@/components/admin-clients";
+import { AdminInventory } from "@/components/admin-inventory";
 import { AdminLoyalty } from "@/components/admin-loyalty";
+import { AdminVouchers } from "@/components/admin-vouchers";
 import { AdminMessages } from "@/components/admin-messages";
+import { AdminWaitlist } from "@/components/admin-waitlist";
 import Image from "next/image";
 import Link from "next/link";
 import {
     LayoutDashboard, CalendarDays, ClipboardList,
     Clock, LogOut, ChevronLeft, ChevronRight,
-    Phone, Scissors, CheckCircle2, AlertCircle,
-    Ban, Menu, X, TrendingUp, Users, Banknote, Lock, Gift, MessageSquare,
+    Phone, Scissors, CheckCircle2,
+    Ban, Menu, X, TrendingUp, Users, Banknote, Gift, MessageSquare, UserPlus,
 } from "lucide-react";
 
 // ─── Color tokens ──────────────────────────────────────────
@@ -242,7 +245,7 @@ function BookingModal({ booking, onClose, onStatusChange }: {
 
 // ─── Main Dashboard ────────────────────────────────────────
 export function AdminDashboard() {
-    const [tab, setTab] = useState<"dashboard" | "calendar" | "bookings" | "slots" | "clients" | "reports" | "loyalty" | "messages">("dashboard");
+    const [tab, setTab] = useState<"dashboard" | "calendar" | "bookings" | "slots" | "clients" | "inventory" | "reports" | "loyalty" | "vouchers" | "messages" | "waitlist">("dashboard");
     const [slots, setSlots] = useState<TimeSlot[]>(initialSlots);
     const [bookings, setBookings] = useState<Booking[]>(mockBookings);
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -282,10 +285,15 @@ export function AdminDashboard() {
         { id: "bookings", icon: ClipboardList, label: "Bookings" },
         { id: "slots", icon: Clock, label: "Slots" },
         { id: "clients", icon: Users, label: "Clients" },
+        { id: "inventory", icon: Package, label: "Inventory" },
         { id: "reports", icon: BarChart2, label: "Reports" },
         { id: "loyalty", icon: Gift, label: "Loyalty" },
+        { id: "vouchers", icon: Gift, label: "Vouchers" },
         { id: "messages", icon: MessageSquare, label: "Messages" },
+        { id: "waitlist", icon: UserPlus, label: "Waitlist" },
     ] as const;
+
+    const currentTabLabel = navItems.find(item => item.id === tab)?.label ?? "Dashboard";
 
     return (
         <div className="flex min-h-screen" style={{ background: C.bg }}>
@@ -365,7 +373,7 @@ export function AdminDashboard() {
                         </button>
                         <div>
                             <h1 className="font-display font-bold text-lg capitalize" style={{ color: C.text }}>
-                                {tab === "dashboard" ? "Dashboard" : tab === "calendar" ? "Calendar" : tab === "bookings" ? "Bookings" : "Manage Slots"}
+                                {currentTabLabel}
                             </h1>
                             <p className="text-xs" style={{ color: C.muted }}>{fmtDate(today)}</p>
                         </div>
@@ -678,9 +686,13 @@ export function AdminDashboard() {
                         </div>
                     )}
                     {tab === "clients" && <AdminClients />}
+                    {tab === "inventory" && <AdminInventory />}
                     {tab === "reports" && <AdminReports />}
                     {tab === "loyalty" && <AdminLoyalty />}
+                    {tab === "vouchers" && <AdminVouchers />}
                     {tab === "messages" && <AdminMessages />}
+                    {tab === "waitlist" && <AdminWaitlist />}
+                    {/* End of admin tab content */}
                 </main>
             </div>
 
