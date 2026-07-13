@@ -8,7 +8,7 @@ const values = [
         icon: Heart,
         title: "Passion for Hair",
         description:
-            "Every style we create is approached with genuine love for the craft. Hair isn't just what we do — it's who we are.",
+            "Every style we create is approached with genuine love for the craft. Hair isn&apos;t just what we do — it&apos;s who we are.",
     },
     {
         icon: Sparkles,
@@ -42,7 +42,7 @@ export function About() {
                         <p className="mt-6 text-base leading-relaxed text-muted-foreground">
                             Mwezu Hair Salon was born from a simple belief — that every woman
                             deserves to feel beautiful, seen, and taken care of. Nestled in
-                            Northmead Market, Shop 25, we've built a space where the girlies
+                            Northmead Market, Shop 25, we&apos;ve built a space where the girlies
                             come not just to get their hair done, but to feel at home.
                         </p>
                         <p className="mt-4 text-base leading-relaxed text-muted-foreground">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Clock, CheckCircle2, CalendarDays, Scissors, ChevronLeft, ChevronRight, Sparkles, Shield, UserPlus, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
@@ -164,10 +164,14 @@ function SummaryBar({ service, variant, date, time }: {
 
 // ─── Main component ───────────────────────────────────────
 export function BookingFlow() {
-    const [step, setStep] = useState(1);
+    const searchParams = useSearchParams();
+    const serviceParam = searchParams.get("service");
+    const preselectedService = serviceParam ? services.find(s => s.name === serviceParam) ?? null : null;
+
+    const [step, setStep] = useState(preselectedService ? (preselectedService.hasVariants ? 1 : 2) : 1);
     const [activeCategory, setActiveCategory] = useState("All");
-    const [selectedService, setSelectedService] = useState<Service | null>(null);
-    const [showVariants, setShowVariants] = useState(false);
+    const [selectedService, setSelectedService] = useState<Service | null>(preselectedService);
+    const [showVariants, setShowVariants] = useState(Boolean(preselectedService?.hasVariants));
     const [variant, setVariant] = useState<Variant>({ size: "Medium", length: "Normal" });
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -176,23 +180,6 @@ export function BookingFlow() {
     const [policyAccepted, setPolicyAccepted] = useState(false);
     const [waitlistForm, setWaitlistForm] = useState({ name: "", phone: "" });
     const [waitlistJoined, setWaitlistJoined] = useState(false);
-
-    const searchParams = useSearchParams();
-
-    useEffect(() => {
-        const serviceParam = searchParams.get("service");
-        if (serviceParam) {
-            const found = services.find(s => s.name === serviceParam);
-            if (found) {
-                setSelectedService(found);
-                if (found.hasVariants) {
-                    setShowVariants(true);
-                } else {
-                    setStep(2);
-                }
-            }
-        }
-    }, [searchParams]);
 
     const dates = getNext14Days();
     const filtered = activeCategory === "All" ? services : services.filter(s => s.category === activeCategory);

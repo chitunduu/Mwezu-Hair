@@ -152,7 +152,7 @@ export function ManageFlow() {
 
                 {/* Can't find it? */}
                 <div className="mt-5 text-center">
-                    <p className="text-xs mb-2" style={{ color: C.muted }}>Can't find your booking?</p>
+                    <p className="text-xs mb-2" style={{ color: C.muted }}>Can&apos;t find your booking?</p>
 
                     <a
                         href="https://wa.me/260977000001"
@@ -227,7 +227,7 @@ export function ManageFlow() {
                         Already at the salon?
                     </h3>
                     <p className="text-sm mb-4" style={{ color: C.muted }}>
-                        Tap below to let the team know you've arrived — they'll be with you shortly!
+                        Tap below to let the team know you&apos;ve arrived — they&apos;ll be with you shortly!
                     </p>
                     <div className="flex gap-2">
                         {[
@@ -253,7 +253,7 @@ export function ManageFlow() {
                 <div className="rounded-2xl px-5 py-4 mb-6 text-sm"
                     style={{ background: C.warningFaint, border: `1px solid ${C.warning}30`, color: C.muted }}>
                     <span style={{ color: C.warning, fontWeight: 600 }}>Cancellation Policy: </span>
-                    Please give at least <strong style={{ color: C.text }}>24 hours' notice</strong> for cancellations
+                    Please give at least <strong style={{ color: C.text }}>24 hours&apos; notice</strong> for cancellations
                     or rescheduling. Late cancellations may incur a fee.
                 </div>
 
@@ -295,8 +295,8 @@ export function ManageFlow() {
                         <h2 className="font-display font-bold text-lg" style={{ color: C.text }}>Reschedule Your Appointment</h2>
                     </div>
                     <p className="text-sm leading-relaxed mb-5" style={{ color: C.muted }}>
-                        You're rescheduling your <span style={{ color: C.text, fontWeight: 600 }}>{booking.service}</span>.
-                        We'll take you back to the booking flow to pick a new date and time.
+                        You&apos;re rescheduling your <span style={{ color: C.text, fontWeight: 600 }}>{booking.service}</span>.
+                        We&apos;ll take you back to the booking flow to pick a new date and time.
                         Your service will already be selected.
                     </p>
 

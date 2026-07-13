@@ -79,7 +79,7 @@ function VoucherCard({
                 )}
                 {message && (
                     <div className="text-xs leading-relaxed italic" style={{ color: "#9B896E" }}>
-                        "{message}"
+                        &quot;{message}&quot;
                     </div>
                 )}
                 {senderName && (
@@ -231,7 +231,7 @@ export function VoucherFlow() {
                 <div className="text-center mb-10">
                     <p className="text-xs uppercase tracking-widest text-primary mb-2">Step 2 of 3</p>
                     <h2 className="font-display text-3xl font-bold text-foreground">Personalise Your Gift</h2>
-                    <p className="mt-2 text-sm text-muted-foreground">Tell us who it's for and add a personal message.</p>
+                    <p className="mt-2 text-sm text-muted-foreground">Tell us who it&apos;s for and add a personal message.</p>
                 </div>
 
                 <div className="flex flex-col gap-4 mb-8">
@@ -381,23 +381,23 @@ export function VoucherFlow() {
                         </button>
                     </a>
 
-                <button
-                    onClick={copyCode}
-                    className="w-full rounded-full py-3 text-sm font-medium border border-border flex items-center justify-center gap-2 transition-colors hover:bg-card"
-                >
-                    {copied ? <Check size={14} /> : <Copy size={14} />}
-                    {copied ? "Code Copied!" : `Copy Voucher Code: ${code}`}
-                </button>
+                    <button
+                        onClick={copyCode}
+                        className="w-full rounded-full py-3 text-sm font-medium border border-border flex items-center justify-center gap-2 transition-colors hover:bg-card"
+                    >
+                        {copied ? <Check size={14} /> : <Copy size={14} />}
+                        {copied ? "Code Copied!" : `Copy Voucher Code: ${code}`}
+                    </button>
 
-                <button
-                    onClick={() => setStep("details")}
-                    className="text-xs text-muted-foreground transition-opacity hover:opacity-70"
-                >
-                    Go back and edit details
-                </button>
-            </div>
-      </div >
-    );
+                    <button
+                        onClick={() => setStep("details")}
+                        className="text-xs text-muted-foreground transition-opacity hover:opacity-70"
+                    >
+                        Go back and edit details
+                    </button>
+                </div>
+            </div >
+        );
     }
 
     // ── Step 4: Sent ─────────────────────────────────────────

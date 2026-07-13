@@ -9,6 +9,7 @@ import { AdminLoyalty } from "@/components/admin-loyalty";
 import { AdminVouchers } from "@/components/admin-vouchers";
 import { AdminMessages } from "@/components/admin-messages";
 import { AdminWaitlist } from "@/components/admin-waitlist";
+import { AdminCheckout } from "@/components/admin-checkout";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -176,70 +177,104 @@ function BookingModal({ booking, onClose, onStatusChange }: {
     onClose: () => void;
     onStatusChange: (id: string, status: BookingStatus) => void;
 }) {
+    const [checkoutOpen, setCheckoutOpen] = useState(false);
+
+    const checkoutBooking = {
+        id: booking.id,
+        client: booking.client,
+        phone: booking.phone,
+        service: booking.service,
+        stylist: "Salon Team",
+        date: booking.date,
+        time: booking.time,
+        price: booking.priceNum,
+        ref: `BK-${booking.id}`,
+    };
+
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: "rgba(0,0,0,0.7)" }}
-            onClick={onClose}
-        >
+        <>
             <div
-                className="w-full max-w-sm rounded-3xl p-6"
-                style={{ background: C.surface, border: `1px solid ${C.goldBorder}` }}
-                onClick={e => e.stopPropagation()}
+                className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                style={{ background: "rgba(0,0,0,0.7)" }}
+                onClick={onClose}
             >
-                <div className="flex items-start justify-between mb-5">
-                    <div>
-                        <h3 className="font-display text-xl font-bold" style={{ color: C.text }}>{booking.client}</h3>
-                        <p className="text-sm mt-0.5" style={{ color: C.muted }}>{booking.date} · {booking.time}</p>
-                    </div>
-                    <button onClick={onClose} style={{ color: C.muted }}>
-                        <X size={20} />
-                    </button>
-                </div>
-
-                <div className="rounded-2xl p-4 mb-5" style={{ background: C.elevated }}>
-                    {[
-                        { label: "Service", value: booking.service + (booking.variant ? ` · ${booking.variant}` : "") },
-                        { label: "Price", value: booking.price, gold: true },
-                        { label: "Duration", value: booking.duration },
-                        { label: "Phone", value: booking.phone },
-                        { label: "Status", value: booking.status },
-                    ].map(({ label, value, gold }) => (
-                        <div key={label} className="flex justify-between py-2 text-sm"
-                            style={{ borderBottom: `1px solid ${C.border}` }}>
-                            <span style={{ color: C.muted }}>{label}</span>
-                            <span className="font-medium" style={{ color: gold ? C.gold : C.text }}>{value}</span>
+                <div
+                    className="w-full max-w-sm rounded-3xl p-6"
+                    style={{ background: C.surface, border: `1px solid ${C.goldBorder}` }}
+                    onClick={e => e.stopPropagation()}
+                >
+                    <div className="flex items-start justify-between mb-5">
+                        <div>
+                            <h3 className="font-display text-xl font-bold" style={{ color: C.text }}>{booking.client}</h3>
+                            <p className="text-sm mt-0.5" style={{ color: C.muted }}>{booking.date} · {booking.time}</p>
                         </div>
-                    ))}
-                </div>
+                        <button onClick={onClose} style={{ color: C.muted }}>
+                            <X size={20} />
+                        </button>
+                    </div>
 
-                <div className="flex flex-col gap-2">
-                    <button
-                        onClick={() => window.open(`https://wa.me/${booking.phone.replace(/\s/g, "")}`)}
-                        className="w-full rounded-full py-3 text-sm font-semibold"
-                        style={{ background: C.gold, color: "#1C1714" }}
-                    >
-                        Message on WhatsApp
-                    </button>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-2xl p-4 mb-5" style={{ background: C.elevated }}>
+                        {[
+                            { label: "Service", value: booking.service + (booking.variant ? ` · ${booking.variant}` : "") },
+                            { label: "Price", value: booking.price, gold: true },
+                            { label: "Duration", value: booking.duration },
+                            { label: "Phone", value: booking.phone },
+                            { label: "Status", value: booking.status },
+                        ].map(({ label, value, gold }) => (
+                            <div key={label} className="flex justify-between py-2 text-sm"
+                                style={{ borderBottom: `1px solid ${C.border}` }}>
+                                <span style={{ color: C.muted }}>{label}</span>
+                                <span className="font-medium" style={{ color: gold ? C.gold : C.text }}>{value}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex flex-col gap-2">
                         <button
-                            onClick={() => { onStatusChange(booking.id, "confirmed"); onClose(); }}
-                            className="rounded-full py-2.5 text-xs font-medium"
-                            style={{ background: C.successFaint, color: C.success, border: `1px solid ${C.success}30` }}
+                            onClick={() => window.open(`https://wa.me/${booking.phone.replace(/\s/g, "")}`)}
+                            className="w-full rounded-full py-3 text-sm font-semibold"
+                            style={{ background: C.gold, color: "#1C1714" }}
                         >
-                            ✓ Confirm
+                            Message on WhatsApp
                         </button>
                         <button
-                            onClick={() => { onStatusChange(booking.id, "cancelled"); onClose(); }}
-                            className="rounded-full py-2.5 text-xs font-medium"
-                            style={{ background: C.dangerFaint, color: C.danger, border: `1px solid ${C.danger}30` }}
+                            onClick={() => setCheckoutOpen(true)}
+                            className="w-full rounded-full py-3 text-sm font-semibold"
+                            style={{ background: "rgba(201,168,76,0.14)", color: C.gold, border: `1px solid ${C.goldBorder}` }}
                         >
-                            ✕ Cancel
+                            Open Checkout
                         </button>
+                        <div className="grid grid-cols-2 gap-2">
+                            <button
+                                onClick={() => { onStatusChange(booking.id, "confirmed"); onClose(); }}
+                                className="rounded-full py-2.5 text-xs font-medium"
+                                style={{ background: C.successFaint, color: C.success, border: `1px solid ${C.success}30` }}
+                            >
+                                ✓ Confirm
+                            </button>
+                            <button
+                                onClick={() => { onStatusChange(booking.id, "cancelled"); onClose(); }}
+                                className="rounded-full py-2.5 text-xs font-medium"
+                                style={{ background: C.dangerFaint, color: C.danger, border: `1px solid ${C.danger}30` }}
+                            >
+                                ✕ Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            {checkoutOpen && (
+                <AdminCheckout
+                    booking={checkoutBooking}
+                    onClose={() => setCheckoutOpen(false)}
+                    onComplete={() => {
+                        onStatusChange(booking.id, "completed");
+
+                    }}
+                />
+            )}
+        </>
     );
 }
 
@@ -252,6 +287,8 @@ export function AdminDashboard() {
     const [bookingFilter, setBookingFilter] = useState<"today" | "week" | "all">("today");
     const [weekOffset, setWeekOffset] = useState(0);
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+    const [checkoutBooking, setCheckoutBooking] = useState<any>(null);
+    const [checkoutOpen, setCheckoutOpen] = useState(false);
 
     const todayBookings = bookings.filter(b => isSameDay(b.dateObj, today));
     const todayRevenue = todayBookings.filter(b => b.status === "confirmed").reduce((s, b) => s + b.priceNum, 0);
